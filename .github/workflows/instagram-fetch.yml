@@ -1,0 +1,42 @@
+name: Fetch Instagram Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      media_type:
+        description: "Media type filter"
+        required: false
+        default: "ALL"
+        type: choice
+        options:
+          - ALL
+          - REELS
+          - IMAGE
+          - VIDEO
+          - CAROUSEL_ALBUM
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r tools/instagram-fetcher/requirements.txt
+
+      - name: Fetch content
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
+        run: |
+          python tools/instagram-fetcher/fetch_instagram_content.py \
+            --media-type "${{ inputs.media_type }}" \
+            --output instagram_content.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instagram-content
+          path: instagram_content.json

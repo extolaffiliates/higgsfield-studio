@@ -28,6 +28,8 @@ not a scraper and cannot read accounts you don't manage.
 
 ## Usage
 
+### Locally
+
 ```bash
 pip install -r requirements.txt
 export $(cat .env | xargs)  # or use python-dotenv / your own env loading
@@ -35,6 +37,20 @@ export $(cat .env | xargs)  # or use python-dotenv / your own env loading
 python fetch_instagram_content.py --media-type ALL --output instagram_content.json
 python fetch_instagram_content.py --media-type REELS --output reels_only.json
 ```
+
+### Via GitHub Actions (recommended if tokens live in repo secrets)
+
+The workflow at `.github/workflows/instagram-fetch.yml` runs this script in
+CI, reading the token from GitHub Actions secrets — the token is never
+exposed in logs or committed anywhere.
+
+1. In the repo: **Settings → Secrets and variables → Actions**, add:
+   - `IG_ACCESS_TOKEN`
+   - `IG_BUSINESS_ACCOUNT_ID`
+2. Go to the **Actions** tab → "Fetch Instagram Content" → **Run workflow**,
+   pick a media type filter, run it.
+3. Download the `instagram-content` artifact from the completed run for the
+   resulting JSON.
 
 Output is a JSON array of media objects: caption, media type, media URL,
 permalink, timestamp, like/comment counts, and thumbnail for video/reels.
